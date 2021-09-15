@@ -1,0 +1,20 @@
+query trades($address: String!) {
+  trades(market: $address, limit: 500, maker: false) {
+    side
+    price
+    sourceAmount
+    targetAmount
+    baseAmount
+    quoteAmount
+    quoteAmountUsd
+    timestamp
+    sourceToken {
+      symbol
+      decimals
+    }
+    targetToken {
+      symbol
+      decimals
+    }
+  }
+}

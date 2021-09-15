@@ -6,7 +6,8 @@
   "author": "Jonathan Schemoul <js@aleph.im>",
   "private": true,
   "scripts": {
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "echo \"No test specified\" && exit 0",
+    "start": "node_modules/.bin/quasar dev"
   },
   "dependencies": {
     "@quasar/extras": "^1.10.7",

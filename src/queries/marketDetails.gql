@@ -1,0 +1,34 @@
+query marketDetails($address: String!) {
+  market(address: $address) {
+    name
+    version
+    address
+    coin {
+      address
+      name
+      decimals
+      symbol
+      logoURI
+    }
+    pc {
+      address
+      name
+      decimals
+      symbol
+      logoURI
+    }
+    stats {
+      vol24h
+      vol7d
+      price
+    }
+  }
+  # pool_hourly_data(address: $address) {
+  #   time
+  #   price
+  #   tvl_coin
+  #   tvl_pc
+  #   tvl_usd
+  #   volume
+  # }
+}

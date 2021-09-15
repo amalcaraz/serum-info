@@ -7,9 +7,9 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/Index.vue'), name: "index" },
       {
-        path: '/pools/:address',
-        component: () => import('pages/Pool.vue'),
-        name: "pool",
+        path: '/market/:address',
+        component: () => import('pages/Market.vue'),
+        name: "market",
         props: true
       },
     ]

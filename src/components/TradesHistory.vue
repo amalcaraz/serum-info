@@ -1,15 +1,15 @@
 <template>
-  <events-table :events="events" />
+  <trades-table :trades="trades" />
 </template>
 
 <script>
 import { defineComponent } from "vue";
-import EventsTable from "./EventsTable.vue";
+import TradesTable from "./TradesTable.vue";
 import tradesQuery from "../queries/trades.gql";
 import { client } from "../services/graphql";
 
 export default defineComponent({
-  components: { EventsTable },
+  components: { TradesTable },
   props: {
     address: String,
   },
