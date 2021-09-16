@@ -7,7 +7,7 @@
       <q-avatar style="margin-left: -12px">
         <img :src="market.pc.logoURI" />
       </q-avatar>
-      {{ market.coin.symbol }}-{{ market.pc.symbol }} Pool
+      {{ market.coin.symbol }}-{{ market.pc.symbol }} Market
     </h4>
     <div class="flex q-mb-md justify-between">
       <div class="row q-gutter-sm" v-if="market.stats.price !== null">
@@ -83,7 +83,7 @@
           </p>
         </q-card-section>
       </q-card>
-      <div class="col-grow" v-if="market_hourly_data">
+      <div class="col-grow" v-if="ohlcv">
         <q-card class="bg-card">
           <q-tabs
             v-model="chartTab"
@@ -101,12 +101,12 @@
           <q-separator />
           <q-tab-panels v-model="chartTab" animated>
             <q-tab-panel name="price" class="bg-dark-60">
-              <apexchart
-                type="area"
-                height="350"
-                :options="priceChartOptions"
-                :series="priceSeries"
-              ></apexchart>
+              <price-chart
+                :market="market"
+                :ohlcv="ohlcv"
+                :intervalUnit="intervalUnit"
+                :numCandles="numCandles"
+              />
             </q-tab-panel>
             <!-- <q-tab-panel name="tvl" class="bg-dark-60">
               <apexchart
@@ -117,12 +117,12 @@
               ></apexchart>
             </q-tab-panel> -->
             <q-tab-panel name="volume" class="bg-dark-60">
-              <apexchart
-                type="area"
-                height="350"
-                :options="volumeChartOptions"
-                :series="volumeSeries"
-              ></apexchart>
+              <volume-chart
+                :market="market"
+                :ohlcv="ohlcv"
+                :intervalUnit="intervalUnit"
+                :numCandles="numCandles"
+              />
             </q-tab-panel>
           </q-tab-panels>
         </q-card>
@@ -144,17 +144,18 @@
 
 <script>
 import { defineComponent } from "vue";
-
+import numeral from "numeral";
 import marketDetailsQuery from "../queries/marketDetails.gql";
 import { client } from "../services/graphql";
 import { get_token } from "../services/tokens";
-import numeral from "numeral";
-import moment from "moment";
 import TradesHistory from "src/components/TradesHistory.vue";
+import PriceChart from "src/components/PriceChart.vue";
+import VolumeChart from "src/components/VolumeChart.vue";
+import { DateTime } from "luxon";
 
 export default defineComponent({
-  components: { TradesHistory },
-  name: "PoolPage",
+  components: { TradesHistory, PriceChart, VolumeChart },
+  name: "MarketPage",
   props: {
     address: String,
   },
@@ -164,37 +165,13 @@ export default defineComponent({
     };
   },
   computed: {
-    priceSeries() {
-      let values = [];
-      let last_value = null;
-      for (let point of this.market_hourly_data) {
-        if (point.price !== null) {
-          last_value = point.price;
-        }
-        values.push(last_value);
-      }
-      return [
-        {
-          name: "price",
-          data: values,
-        },
-      ];
-    },
-    volumeSeries() {
-      return [
-        {
-          name: "volume",
-          data: this.market_hourly_data.map((m) => m.volume),
-        },
-      ];
-    },
     tvlSeries() {
       let values = [];
       let last_value = null;
       let has_usd = this.market.pc.symbol.includes("USD");
       let tvl_key = "tvl_usd";
       if (!has_usd) tvl_key = "tvl_coin";
-      for (let point of this.market_hourly_data) {
+      for (let point of this.ohlcv) {
         if (point[tvl_key] !== null) {
           last_value = point[tvl_key];
         }
@@ -206,18 +183,6 @@ export default defineComponent({
           data: values,
         },
       ];
-    },
-    priceChartOptions() {
-      return {
-        yaxis: {
-          labels: {
-            formatter: function (val) {
-              return val.toFixed(4);
-            },
-          },
-        },
-        ...this.chartOptions,
-      };
     },
     tvlChartOptions() {
       let has_usd = this.market.pc.symbol.includes("USD");
@@ -233,111 +198,34 @@ export default defineComponent({
             },
           },
         },
-        ...this.chartOptions,
-      };
-    },
-    volumeChartOptions() {
-      return {
-        yaxis: {
-          labels: {
-            formatter: function (val) {
-              return numeral(val).format("0,0 $");
-            },
-          },
-        },
-        ...this.chartOptions,
-      };
-    },
-    chartOptions() {
-      return {
-        chart: {
-          type: "area",
-          stacked: false,
-          height: 350,
-          zoom: {
-            zoom: {
-              type: "x",
-              enabled: true,
-              autoScaleYaxis: true,
-            },
-            toolbar: {
-              autoSelected: "zoom",
-            },
-          },
-        },
-        dataLabels: {
-          enabled: false,
-        },
-        stroke: {
-          curve: "smooth",
-          width: 2,
-        },
-        fill: {
-          type: "gradient",
-          gradient: {
-            shadeIntensity: 1,
-            inverseColors: false,
-            opacityFrom: 0.5,
-            opacityTo: 0,
-            stops: [0, 90, 100],
-          },
-        },
-        labels: this.market_hourly_data.map((e) => e.time),
-        xaxis: {
-          labels: {
-            formatter: function (val) {
-              return moment(val).format("MMM Do ha");
-            },
-          },
-          type: "datetime",
-        },
-        legend: {
-          horizontalAlign: "left",
-          labels: {
-            color: ["#fff"],
-          },
-          show: false,
-        },
-        theme: {
-          palette: "palette1",
-        },
-        background: "transparent",
-        grid: {
-          show: false,
-        },
       };
     },
   },
   async setup(props) {
+    const now = DateTime.now();
+
+    const intervalUnit = "hour";
+    const numCandles = 24;
+
     let result = await client.request(marketDetailsQuery, {
       address: props.address,
+      intervalUnit,
+      startDate: now.minus({ [intervalUnit]: numCandles }).valueOf(),
+      endDate: now.valueOf(),
     });
+
     result.market.coin = get_token(
       result.market.coin.address,
       result.market.coin
     );
     result.market.pc = get_token(result.market.pc.address, result.market.pc);
 
-    console.log(result);
     return {
       numeral,
+      intervalUnit,
+      numCandles,
       ...result,
     };
   },
 });
 </script>
-
-<style lang="css">
-.apexcharts-text {
-  fill: #fff;
-}
-.apexcharts-tooltip-y-group {
-  color: #000 !important;
-}
-.apexcharts-tooltip-title {
-  color: #000 !important;
-}
-.apexcharts-menu {
-  color: #000 !important;
-}
-</style>

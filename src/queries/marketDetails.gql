@@ -1,4 +1,4 @@
-query marketDetails($address: String!) {
+query marketDetails($address: String!, $intervalUnit: OHLCVIntervalUnitInfo!, $startDate: Float!, $endDate: Float!) {
   market(address: $address) {
     name
     version
@@ -23,12 +23,12 @@ query marketDetails($address: String!) {
       price
     }
   }
-  # pool_hourly_data(address: $address) {
-  #   time
-  #   price
-  #   tvl_coin
-  #   tvl_pc
-  #   tvl_usd
-  #   volume
-  # }
+  ohlcv(market: $address, intervalUnit: $intervalUnit, startDate: $startDate, endDate: $endDate) {
+    open
+    high
+    low
+    close
+    volume
+    interval
+  }
 }

@@ -17,7 +17,7 @@
       <q-tab name="withdraw" label="Removes" /> -->
     </q-tabs>
     <q-table
-      :rows="formattedTrades"
+      :rows="filteredTrades"
       :columns="eventCols"
       flat
       card-class="bg-transparent"
@@ -29,62 +29,60 @@
             key="title"
             :props="props"
             class="text-white"
-            style="min-width: 350px"
+            style="min-width: 100px"
           >
-            <a
-              v-if="props.row.side === 'buy'"
-              class="buy"
-              :href="`https://solscan.io/tx/${props.row.signature}`"
-              target="_blank"
-              rel="noopener"
-            >
-              Buy
-              {{ props.row.sourceToken ? props.row.sourceToken.symbol : "???" }}
-              with
-              {{ props.row.targetToken ? props.row.targetToken.symbol : "???" }}
-            </a>
-            <a
-              v-else
-              class="sell"
-              :href="`https://solscan.io/tx/${props.row.signature}`"
-              target="_blank"
-              rel="noopener"
-            >
-              Sell
-              {{ props.row.sourceToken ? props.row.sourceToken.symbol : "???" }}
-              for
-              {{ props.row.targetToken ? props.row.targetToken.symbol : "???" }}
-            </a>
+            {{ props.row.market }}
           </q-td>
           <!-- <q-td key="usd_value" :props="props">
             {{ numeral(props.row.usd_value).format("0,0[.]00 $") }}
           </q-td> -->
+          <q-td
+            key="side"
+            :props="props"
+            :class="{
+              buy: props.row.side === 'buy',
+              sell: props.row.side === 'sell',
+            }"
+          >
+            {{ props.row.side === "buy" ? "Buy" : "Sell" }}
+          </q-td>
           <q-td key="price" :props="props">
             {{ numeral(props.row.price).format(`0,0[.]00`) }}
-            {{ props.row.targetToken.symbol }}
+            {{ props.row.quoteToken.symbol }}
           </q-td>
-          <q-td key="sourceAmount" :props="props">
-            <template v-if="props.row.sourceToken">
+          <q-td key="amount" :props="props">
+            <template v-if="props.row.baseToken">
               {{
-                numeral(props.row.sourceAmount)
-                  // .divide(10 ** props.row.sourceToken.decimals)
+                numeral(props.row.baseAmount)
+                  .divide(10 ** props.row.baseToken.decimals)
                   .format(`0,0[.]00`)
               }}
-              {{ props.row.sourceToken.symbol }}
+              {{ props.row.baseToken.symbol }}
             </template>
           </q-td>
-          <q-td key="targetAmount" :props="props">
-            <template v-if="props.row.targetToken">
+          <q-td key="cost" :props="props">
+            <template v-if="props.row.quoteToken">
               {{
-                numeral(props.row.targetAmount)
-                  // .divide(10 ** props.row.targetToken.decimals)
+                numeral(props.row.quoteAmount)
+                  .divide(10 ** props.row.quoteToken.decimals)
                   .format(`0,0[.]00`)
               }}
-              {{ props.row.targetToken.symbol }}
+              {{ props.row.quoteToken.symbol }}
+            </template>
+          </q-td>
+          <q-td key="fee" :props="props">
+            <template v-if="props.row.quoteToken">
+              {{
+                numeral(props.row.feeAmount)
+                  .divide(10 ** props.row.quoteToken.decimals)
+                  .format(`0,0[.]00`)
+              }}
+              {{ props.row.quoteToken.symbol }}
+              <template v-if="props.row.quoteToken < 0"> (Rebate)</template>
             </template>
           </q-td>
           <q-td key="time" :props="props">
-            {{ moment(props.row.timestamp).fromNow() }}
+            {{ DateTime.fromMillis(props.row.timestamp).toRelative() }}
           </q-td>
         </q-tr>
       </template>
@@ -96,7 +94,7 @@
 <script>
 import { defineComponent } from "vue";
 import numeral from "numeral";
-import moment from "moment";
+import { DateTime } from "luxon";
 
 export default defineComponent({
   name: "TradesTable",
@@ -111,31 +109,11 @@ export default defineComponent({
         return trades.filter((ev) => ev.type === this.tab);
       }
     },
-    formattedTrades() {
-      return this.filteredTrades.map((ev) => ({
-        title: ev.type,
-        usd_value: ev.usd_value,
-        sourceAmount: ev.sourceAmount ? ev.sourceAmount : ev.pc_amount,
-        sourceToken: ev.sourceAmount
-          ? ev.sourceToken
-          : ev.pool
-          ? ev.pool.pc
-          : null,
-        targetAmount: ev.targetAmount ? ev.targetAmount : ev.coin_amount,
-        targetToken: ev.targetAmount
-          ? ev.targetToken
-          : ev.pool
-          ? ev.pool.coin
-          : null,
-        owner: ev.owner,
-        ...ev,
-      }));
-    },
   },
   data() {
     return {
       tab: "all",
-      moment: moment,
+      DateTime,
       numeral: numeral,
       eventCols: [
         {
@@ -151,6 +129,13 @@ export default defineComponent({
         //   sortable: true,
         // },
         {
+          name: "side",
+          field: "side",
+          align: "right",
+          label: "Side",
+          sortable: true,
+        },
+        {
           name: "price",
           field: "price",
           align: "right",
@@ -158,17 +143,24 @@ export default defineComponent({
           sortable: true,
         },
         {
-          name: "sourceAmount",
-          field: "sourceAmount",
+          name: "amount",
+          field: "amount",
           align: "right",
-          label: "Source",
+          label: "Amount",
           sortable: true,
         },
         {
-          name: "targetAmount",
-          field: "targetAmount",
+          name: "cost",
+          field: "cost",
           align: "right",
-          label: "Target",
+          label: "Cost",
+          sortable: true,
+        },
+        {
+          name: "fee",
+          field: "fee",
+          align: "right",
+          label: "Fee",
           sortable: true,
         },
         {
