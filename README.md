@@ -1,6 +1,6 @@
-# Raydium Info (raydium-info)
+# Serum Info (serum-info)
 
-Raydium info powered by aleph.im
+Serum info powered by aleph.im
 
 ## Install the dependencies
 ```bash

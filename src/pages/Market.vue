@@ -40,7 +40,7 @@
     <div class="flex q-gutter-md q-mb-md items-stretch">
       <q-card class="bg-card col-auto" style="min-width: 300px">
         <q-card-section>
-          <div class="bg-raydium-gradient rounded-borders q-pa-one">
+          <div class="q-pa-one">
             <q-card class="shadow-0 bg-dark-opacity">
               <q-card-section>
                 <h6 class="q-ma-none q-pb-sm">Total tokens locked</h6>
@@ -92,7 +92,7 @@
             active-color="white"
             align="right"
             narrow-indicator
-            indicator-color="raydium-purple"
+            indicator-color="serum-purple"
           >
             <q-tab name="price" label="Price" />
             <!-- <q-tab name="tvl" label="TVL" /> -->

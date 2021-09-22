@@ -20,15 +20,27 @@ query marketDetails($address: String!, $intervalUnit: OHLCVIntervalUnitInfo!, $s
     stats {
       vol24h
       vol7d
+      vol24hUsd
+      vol7dUsd
       price
+      priceUsd
+      tvlCoin
+      tvlPc
+      tvlUsd
     }
   }
-  ohlcv(market: $address, intervalUnit: $intervalUnit, startDate: $startDate, endDate: $endDate) {
-    open
-    high
-    low
-    close
-    volume
-    interval
+  hourlyStats(market: $address) {
+    tvl {
+      tvlCoin
+      tvlPc
+    },
+    ohlcv {
+  		open
+  		high
+  		low
+  		close
+    	volume
+      interval
+    }
   }
 }

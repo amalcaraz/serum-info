@@ -148,9 +148,9 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: `Raydium Info`,
-        short_name: `Raydium Info`,
-        description: `Raydium info powered by aleph.im`,
+        name: `Serum Info`,
+        short_name: `Serum Info`,
+        description: `Serum info powered by aleph.im`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
@@ -215,7 +215,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'raydium-info'
+        appId: 'serum-info'
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain

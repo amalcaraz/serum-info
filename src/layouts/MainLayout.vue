@@ -1,20 +1,30 @@
 <template>
   <q-layout view="lhh LpR lff" class="q-mb-xl">
-    <q-header :class="($q.dark.isActive?'text-white':'text-black') + ' bg-transparent q-pa-sm'">
+    <q-header
+      :class="
+        ($q.dark.isActive ? 'text-white' : 'text-black') +
+        ' bg-transparent q-pa-sm'
+      "
+    >
       <q-toolbar>
         <router-link to="/">
-          <img src="../assets/raydium-logo-analytics.svg" height="50" class="q-mr-md" alt="Raydium Analytics" />
-        </router-link>
-        <q-tabs indicator-color="raydium-purple">
-          <q-route-tab
-            to="/"
-            label="Dashboard"
-            exact
+          <img
+            src="../assets/serum-logo-analytics.svg"
+            height="50"
+            class="q-mr-md"
+            alt="Serum Analytics"
           />
+        </router-link>
+        <q-tabs indicator-color="serum-purple">
+          <q-route-tab to="/" label="Dashboard" exact />
         </q-tabs>
         <q-space />
         <a href="https://aleph.im" target="_blank" rel="noopener">
-          <img src="../assets/aleph-logo-powered.svg" height="30" alt="powered by aleph.im"/>
+          <img
+            src="../assets/aleph-logo-powered.svg"
+            height="30"
+            alt="powered by aleph.im"
+          />
         </a>
       </q-toolbar>
     </q-header>
@@ -31,22 +41,19 @@
 </template>
 
 <script>
-
-import { defineComponent, ref, onErrorCaptured } from 'vue'
+import { defineComponent, ref, onErrorCaptured } from "vue";
 
 export default defineComponent({
-  name: 'MainLayout',
+  name: "MainLayout",
 
-  components: {
+  components: {},
+
+  async setup() {
+    const leftDrawerOpen = ref(false);
+
+    return {};
   },
-
-  async setup () {
-    const leftDrawerOpen = ref(false)
-
-    return {
-    }
-  }
-})
+});
 </script>
 
 <style lang="scss">
@@ -69,9 +76,9 @@ export default defineComponent({
 
 .q-list.menu {
   .q-item {
-      min-height: 36px;
-      padding-bottom: 0;
-      padding-top: 0;
+    min-height: 36px;
+    padding-bottom: 0;
+    padding-top: 0;
   }
 
   .q-item__label--header {
@@ -87,16 +94,16 @@ export default defineComponent({
   .q-list.menu {
     .q-item {
       opacity: 0.5;
-      color: #F6F8FB;
+      color: #f6f8fb;
 
       &.q-router-link--active {
         color: #fff;
-        opacity: 1.0;
+        opacity: 1;
       }
     }
 
     .q-item__label--header {
-      color: #FFF;
+      color: #fff;
     }
   }
 }
@@ -139,38 +146,31 @@ export default defineComponent({
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
 
-      &:before, &:after{
+      &:before,
+      &:after {
         box-sizing: content-box;
-        content: '';
+        content: "";
         position: absolute;
         left: 100%; /* I use this instead of right: 0 to avoid 1px rounding errors */
         margin-left: -15px; /* I use this because I am using left: 100% */
         width: 15px;
         height: 15px;
-        border-right: 15px solid #fff ;
+        border-right: 15px solid #fff;
         z-index: 10;
       }
 
       &:before {
         top: -15px;
-        border-bottom: 15px solid  #fff;
+        border-bottom: 15px solid #fff;
         border-bottom-right-radius: 30px;
       }
 
       &:after {
         bottom: -15px;
-        border-top: 15px solid  #fff;
+        border-top: 15px solid #fff;
         border-top-right-radius: 30px;
       }
     }
   }
-}
-
-.rounded-large {
-  border-radius: 25px;
-}
-
-.rounded-forced {
-  border-radius: 10px !important;
 }
 </style>

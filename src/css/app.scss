@@ -6,7 +6,7 @@ html { font-family: 'Inter', sans-serif; }
 }
 
 body.body--dark {
-  background: #131a35;
+  background: #0d1017;
 }
 
 table a {
@@ -61,17 +61,12 @@ background: #91989C;
 background: #C8CBCD;
 }
 
-
-.bg-raydium-gradient {
-  background: linear-gradient(245.22deg,#c200fb 7.97%,#3772ff 49.17%,#3773fe 0,#5ac4be 92.1%);
+.bg-serum-purple {
+  background-color: #2abdd2;
 }
 
-.bg-raydium-purple {
-  background-color: #6a49fe;
-}
-
-.text-raydium-purple {
-  color: #6a49fe;
+.text-serum-purple {
+  color: #2abdd2;
 }
 
 .q-pa-one {
@@ -246,4 +241,10 @@ td.address {
 	
 	/* for good looks */
 	padding: 10px;
+}
+
+.q-card,
+.q-table__card,
+.q-btn--rectangle {
+  border-radius: 0 !important;
 }

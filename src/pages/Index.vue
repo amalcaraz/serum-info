@@ -1,7 +1,7 @@
 
 <template>
   <q-page class="q-pa-xl">
-    <div class="bg-raydium-gradient rounded-borders q-pa-one">
+    <div class="q-pa-one">
       <q-table
         title="Markets"
         :rows="displayedMarkets"
