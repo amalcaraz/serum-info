@@ -28,17 +28,14 @@ export default defineComponent({
       ];
     },
     options() {
-      const common = commonChartOptions(this.ohlcv);
-      const pc = this.market.pc;
+      const common = commonChartOptions();
 
       return {
         ...common,
         yaxis: {
           labels: {
-            formatter: function (val) {
-              return `${numeral(val / 10 ** pc.decimals).format("0,0")} ${
-                pc.symbol
-              }`;
+            formatter(val) {
+              return `${numeral(val / 10 ** 6).format("0,0 $")}`;
             },
           },
         },

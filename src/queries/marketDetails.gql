@@ -1,4 +1,4 @@
-query marketDetails($address: String!, $intervalUnit: OHLCVIntervalUnitInfo!, $startDate: Float!, $endDate: Float!) {
+query marketDetails($address: String!) {
   market(address: $address) {
     name
     version
@@ -33,6 +33,7 @@ query marketDetails($address: String!, $intervalUnit: OHLCVIntervalUnitInfo!, $s
     tvl {
       tvlCoin
       tvlPc
+      interval
     },
     ohlcv {
   		open

@@ -8,35 +8,38 @@ import numeral from "numeral";
 import { commonChartOptions, commonChartSeries } from "../services/charts";
 
 export default defineComponent({
-  name: "PriceChart",
-  props: ["market", "ohlcv", "timeUnit", "timeSize", "numCandles"],
+  name: "TvlChart",
+  props: ["market", "tvl", "timeUnit", "timeSize", "numCandles"],
   computed: {
     series() {
-      const data = commonChartSeries(this.ohlcv, {
+      const data = commonChartSeries(this.tvl, {
         timeUnit: this.timeUnit,
         timeSize: this.timeSize,
         numCandles: this.numCandles,
-        onData: (step, candle) => [step.toMillis(), candle.close],
-        onEmpty: (step, lastCandle) => [step.toMillis(), lastCandle.close],
+        onData: (step, candle) => [step.toMillis(), candle.tvlCoin],
+        onEmpty: (step, lastCandle) => [step.toMillis(), lastCandle.tvlCoin],
       });
 
       return [
         {
-          name: "price",
+          name: "tvl",
           data,
         },
       ];
     },
     options() {
       const common = commonChartOptions();
-      const { symbol } = this.market.pc;
+      const { symbol, decimals } = this.market.coin;
+      const hasUsd = this.market.pc.symbol.includes("USD");
 
       return {
         ...common,
         yaxis: {
           labels: {
             formatter(val) {
-              return `${numeral(val).format("0,0")} ${symbol}`;
+              return `${numeral(val / 10 ** decimals).format("0,0")} ${
+                hasUsd ? "$" : symbol
+              }`;
             },
           },
         },

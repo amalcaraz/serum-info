@@ -1,6 +1,7 @@
 import { DateTime, Interval } from "luxon";
+import numeral from "numeral";
 
-export function commonChartOptions(ohlcv) {
+export function commonChartOptions() {
     return {
         chart: {
             type: "area",
@@ -19,13 +20,20 @@ export function commonChartOptions(ohlcv) {
         },
         xaxis: {
             labels: {
-                formatter: function (val) {
+                formatter(val) {
                     return DateTime.fromMillis(val)
                         .toFormat("MMM d ha")
                         .toLowerCase();
                 },
             },
             type: "datetime",
+        },
+        yaxis: {
+            labels: {
+                formatter(val) {
+                    return `${numeral(val / 10 ** 6).format("0,0 $")}`;
+                },
+            },
         },
         dataLabels: {
             enabled: false,
@@ -34,6 +42,7 @@ export function commonChartOptions(ohlcv) {
             curve: "smooth",
             width: 2,
         },
+        colors: ['#00b3c8', '#00b3c8', '#00b3c8'],
         fill: {
             type: "gradient",
             gradient: {
@@ -61,20 +70,20 @@ export function commonChartOptions(ohlcv) {
     }
 }
 
-export function commonChartSeries(ohlcv, { timeUnit, timeSize, numCandles, onEmpty, onData }) {
-    if (ohlcv.length === 0) return [];
+export function commonChartSeries(items, { timeUnit, timeSize, numCandles, onEmpty, onData }) {
+    if (items.length === 0) return [];
 
     timeUnit = timeUnit || "hour";
     timeSize = timeSize || 1;
     numCandles = numCandles || 24;
 
     const rightBound = Interval.fromISO(
-        ohlcv[ohlcv.length - 1].interval
+        items[items.length - 1].interval
     ).start;
 
     const leftBound = DateTime.max(
         rightBound.minus({ [timeUnit]: numCandles }),
-        Interval.fromISO(ohlcv[0].interval).start
+        Interval.fromISO(items[0].interval).start
     );
 
     let data = [];
@@ -82,8 +91,8 @@ export function commonChartSeries(ohlcv, { timeUnit, timeSize, numCandles, onEmp
     let candleIndex = 0;
     let lastCandle;
 
-    while (step <= rightBound && candleIndex < ohlcv.length) {
-        const candle = ohlcv[candleIndex];
+    while (step <= rightBound && candleIndex < items.length) {
+        const candle = items[candleIndex];
         const candleStart = Interval.fromISO(candle.interval).start;
 
         let skip = false;

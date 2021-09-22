@@ -4,11 +4,10 @@
 
 <script>
 import { defineComponent } from "vue";
-import numeral from "numeral";
 import { commonChartOptions, commonChartSeries } from "../services/charts";
 
 export default defineComponent({
-  name: "PriceChart",
+  name: "PriceCandleChart",
   props: ["market", "ohlcv", "timeUnit", "timeSize", "numCandles"],
   computed: {
     series() {
@@ -16,8 +15,20 @@ export default defineComponent({
         timeUnit: this.timeUnit,
         timeSize: this.timeSize,
         numCandles: this.numCandles,
-        onData: (step, candle) => [step.toMillis(), candle.close],
-        onEmpty: (step, lastCandle) => [step.toMillis(), lastCandle.close],
+        onData: (step, candle) => [
+          step.toMillis(),
+          candle.open,
+          candle.high,
+          candle.low,
+          candle.close,
+        ],
+        onEmpty: (step, lastCandle) => [
+          step.toMillis(),
+          lastCandle.close,
+          lastCandle.close,
+          lastCandle.close,
+          lastCandle.close,
+        ],
       });
 
       return [
@@ -29,16 +40,17 @@ export default defineComponent({
     },
     options() {
       const common = commonChartOptions();
-      const { symbol } = this.market.pc;
 
       return {
         ...common,
-        yaxis: {
-          labels: {
-            formatter(val) {
-              return `${numeral(val).format("0,0")} ${symbol}`;
-            },
-          },
+        chart: {
+          ...common.chart,
+          type: "candlestick",
+          stacked: false,
+          height: 350,
+        },
+        dataLabels: {
+          enabled: false,
         },
       };
     },

@@ -54,7 +54,11 @@
                     {{ market.coin.symbol }}
                   </span>
                   <span>
-                    {{ numeral(market.stats.tvl_coin).format("0,0.00") }}
+                    {{
+                      numeral(
+                        market.stats.tvlCoin / 10 ** market.coin.decimals
+                      ).format("0,0.00")
+                    }}
                   </span>
                 </div>
                 <div
@@ -67,7 +71,11 @@
                     {{ market.pc.symbol }}
                   </span>
                   <span>
-                    {{ numeral(market.stats.tvl_pc).format("0,0.00") }}
+                    {{
+                      numeral(
+                        market.stats.tvlPc / 10 ** market.pc.decimals
+                      ).format("0,0.00")
+                    }}
                   </span>
                 </div>
               </q-card-section>
@@ -75,15 +83,15 @@
           </div>
           <p class="q-pt-md text-bold q-mb-none">TVL</p>
           <p class="text-h5">
-            {{ numeral(market.stats.tvl_usd).format("0,0 $") }}
+            {{ numeral(market.stats.tvlUsd / 10 ** 6).format("0,0 $") }}
           </p>
           <p class="q-pt-md text-bold q-mb-none">Volume (24h)</p>
           <p class="text-h5">
-            {{ numeral(market.stats.vol24h_usd).format("0,0 $") }}
+            {{ numeral(market.stats.vol24hUsd / 10 ** 6).format("0,0 $") }}
           </p>
         </q-card-section>
       </q-card>
-      <div class="col-grow" v-if="ohlcv">
+      <div class="col-grow" v-if="hourlyStats.ohlcv || hourlyStats.tvl">
         <q-card class="bg-card">
           <q-tabs
             v-model="chartTab"
@@ -94,32 +102,40 @@
             narrow-indicator
             indicator-color="serum-purple"
           >
-            <q-tab name="price" label="Price" />
-            <!-- <q-tab name="tvl" label="TVL" /> -->
-            <q-tab name="volume" label="Volume" />
+            <q-tab v-if="hourlyStats.ohlcv" name="price" label="Price" />
+            <q-tab v-if="hourlyStats.tvl" name="tvl" label="TVL" />
+            <q-tab v-if="hourlyStats.ohlcv" name="volume" label="Volume" />
           </q-tabs>
           <q-separator />
           <q-tab-panels v-model="chartTab" animated>
-            <q-tab-panel name="price" class="bg-dark-60">
+            <q-tab-panel
+              v-if="hourlyStats.ohlcv"
+              name="price"
+              class="bg-dark-60"
+            >
               <price-chart
                 :market="market"
-                :ohlcv="ohlcv"
+                :ohlcv="hourlyStats.ohlcv"
                 :intervalUnit="intervalUnit"
                 :numCandles="numCandles"
               />
             </q-tab-panel>
-            <!-- <q-tab-panel name="tvl" class="bg-dark-60">
-              <apexchart
-                type="area"
-                height="350"
-                :options="tvlChartOptions"
-                :series="tvlSeries"
-              ></apexchart>
-            </q-tab-panel> -->
-            <q-tab-panel name="volume" class="bg-dark-60">
+            <q-tab-panel v-if="hourlyStats.tvl" name="tvl" class="bg-dark-60">
+              <tvl-chart
+                :market="market"
+                :tvl="hourlyStats.tvl"
+                :intervalUnit="intervalUnit"
+                :numCandles="numCandles"
+              />
+            </q-tab-panel>
+            <q-tab-panel
+              v-if="hourlyStats.ohlcv"
+              name="volume"
+              class="bg-dark-60"
+            >
               <volume-chart
                 :market="market"
-                :ohlcv="ohlcv"
+                :ohlcv="hourlyStats.ohlcv"
                 :intervalUnit="intervalUnit"
                 :numCandles="numCandles"
               />
@@ -151,10 +167,10 @@ import { get_token } from "../services/tokens";
 import TradesHistory from "src/components/TradesHistory.vue";
 import PriceChart from "src/components/PriceChart.vue";
 import VolumeChart from "src/components/VolumeChart.vue";
-import { DateTime } from "luxon";
+import TvlChart from "src/components/TvlChart.vue";
 
 export default defineComponent({
-  components: { TradesHistory, PriceChart, VolumeChart },
+  components: { TradesHistory, PriceChart, VolumeChart, TvlChart },
   name: "MarketPage",
   props: {
     address: String,
@@ -164,54 +180,16 @@ export default defineComponent({
       chartTab: "price",
     };
   },
-  computed: {
-    tvlSeries() {
-      let values = [];
-      let last_value = null;
-      let has_usd = this.market.pc.symbol.includes("USD");
-      let tvl_key = "tvl_usd";
-      if (!has_usd) tvl_key = "tvl_coin";
-      for (let point of this.ohlcv) {
-        if (point[tvl_key] !== null) {
-          last_value = point[tvl_key];
-        }
-        values.push(last_value);
-      }
-      return [
-        {
-          name: "tvl",
-          data: values,
-        },
-      ];
-    },
-    tvlChartOptions() {
-      let has_usd = this.market.pc.symbol.includes("USD");
-      let tvl_format = "0,0 $";
-      if (!has_usd) {
-        tvl_format = `0,0 ${this.market.coin.symbol}`;
-      }
-      return {
-        yaxis: {
-          labels: {
-            formatter: function (val) {
-              return numeral(val).format(tvl_format);
-            },
-          },
-        },
-      };
-    },
-  },
   async setup(props) {
-    const now = DateTime.now();
-
+    // const now = DateTime.now();
     const intervalUnit = "hour";
     const numCandles = 24;
 
     let result = await client.request(marketDetailsQuery, {
       address: props.address,
-      intervalUnit,
-      startDate: now.minus({ [intervalUnit]: numCandles }).valueOf(),
-      endDate: now.valueOf(),
+      // intervalUnit,
+      // startDate: now.minus({ [intervalUnit]: numCandles }).valueOf(),
+      // endDate: now.valueOf(),
     });
 
     result.market.coin = get_token(
