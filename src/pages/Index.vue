@@ -6,10 +6,11 @@
         title="Markets"
         :rows="displayedMarkets"
         :columns="marketcols"
+        :sort-method="customSort"
         row-key="name"
         :pagination="{
           rowsPerPage: 25,
-          sortBy: 'vol24h',
+          sortBy: 'tvl',
           descending: true,
         }"
         class="bg-dark-opacity"
@@ -30,16 +31,14 @@
                 {{ props.row.name }}
               </router-link>
             </q-td>
-            <!-- <q-td key="tvl" :props="props">
-              {{ numeral(props.row.tvl).format("0,0 $") }}
-            </q-td> -->
-            <q-td key="price" :props="props">
-              <!-- {{ numeral(props.row.stats.price).format("0,0 $") }} -->
-              {{ numeral(props.row.stats.price).format("0,0") }}
+            <q-td key="tvl" :props="props">
+              {{ numeral(props.row.stats.tvlUsd / 10 ** 6).format("0,0 $") }}
             </q-td>
             <q-td key="vol24h" :props="props">
-              <!-- {{ numeral(props.row.stats.vol24h).format("0,0 $") }} -->
-              {{ numeral(props.row.stats.vol24h).format("0,0") }}
+              {{ numeral(props.row.stats.vol24hUsd / 10 ** 6).format("0,0 $") }}
+            </q-td>
+            <q-td key="price" :props="props">
+              {{ numeral(props.row.stats.priceUsd).format("0,0 $") }}
             </q-td>
           </q-tr>
         </template>
@@ -66,13 +65,53 @@ export default defineComponent({
           ...market,
           coin: get_token(market.coin.address, market.coin),
           pc: get_token(market.pc.address, market.pc),
-        }))
-        .sort((a, b) => a.tvl < b.tvl);
+        }));
+    },
+  },
+  methods: {
+    customSort(rows, sortBy, descending) {
+      const data = [...rows];
+
+      if (sortBy) {
+        data.sort((a, b) => {
+          const x = descending ? b : a;
+          const y = descending ? a : b;
+          let xVal, yVal;
+
+          switch (sortBy) {
+            case "name": {
+              xVal = x.name;
+              yVal = y.name;
+              break;
+            }
+            case "tvl": {
+              xVal = x.stats.tvlUsd;
+              yVal = y.stats.tvlUsd;
+              break;
+            }
+            case "price": {
+              xVal = x.stats.priceUsd;
+              yVal = y.stats.priceUsd;
+              break;
+            }
+            case "vol24h": {
+              xVal = x.stats.vol24hUsd;
+              yVal = y.stats.vol24hUsd;
+              break;
+            }
+          }
+
+          return typeof xVal === "string"
+            ? xVal.localeCompare(yVal)
+            : xVal - yVal;
+        });
+      }
+
+      return data;
     },
   },
   async setup() {
     let result = await client.request(marketsQuery);
-    console.log(result);
 
     return {
       markets: result.markets,
@@ -84,22 +123,22 @@ export default defineComponent({
           align: "left",
           sortable: true,
         },
-        // {
-        //   name: "tvl",
-        //   label: "TVL",
-        //   field: "tvl",
-        //   sortable: true,
-        // },
         {
-          name: "price",
-          label: "Last Price",
-          field: "price",
+          name: "tvl",
+          label: "TVL",
+          field: "tvl",
           sortable: true,
         },
         {
           name: "vol24h",
           label: "Volume (24h)",
           field: "vol24h",
+          sortable: true,
+        },
+        {
+          name: "price",
+          label: "Last Price",
+          field: "price",
           sortable: true,
         },
       ],

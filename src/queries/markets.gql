@@ -4,24 +4,18 @@
     version
     address
     coin {
-      chainId
       address
-      name
-      decimals
-      symbol
       logoURI
     }
     pc {
-      chainId
       address
-      name
-      decimals
-      symbol
       logoURI
     }
     stats {
-      vol24h
-      price
+      vol24hUsd
+      vol7dUsd
+      priceUsd
+      tvlUsd
     }
   }
 }
