@@ -7,6 +7,7 @@ query trades($address: String!) {
     quoteAmount
     feeAmount
     quoteAmountUsd
+    account
     timestamp
     baseToken {
       symbol

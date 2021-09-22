@@ -33,9 +33,16 @@
           >
             {{ props.row.market }}
           </q-td>
-          <!-- <q-td key="usd_value" :props="props">
-            {{ numeral(props.row.usd_value).format("0,0[.]00 $") }}
-          </q-td> -->
+          <q-td key="account" :props="props">
+            <a
+              label="Trade initiator"
+              :href="`https://explorer.solana.com/address/${props.row.account}`"
+              target="_blank"
+              rel="noopener"
+            >
+              {{ props.row.account }}
+            </a>
+          </q-td>
           <q-td
             key="side"
             :props="props"
@@ -121,13 +128,12 @@ export default defineComponent({
           field: "title",
           align: "left",
         },
-        // {
-        //   name: "usd_value",
-        //   field: "usd_value",
-        //   align: "right",
-        //   label: "Total Value",
-        //   sortable: true,
-        // },
+        {
+          name: "account",
+          field: "account",
+          label: "Initiator",
+          align: "left",
+        },
         {
           name: "side",
           field: "side",
