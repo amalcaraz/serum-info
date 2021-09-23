@@ -38,7 +38,7 @@
               {{ numeral(props.row.stats.vol24hUsd / 10 ** 6).format("0,0 $") }}
             </q-td>
             <q-td key="price" :props="props">
-              {{ numeral(props.row.stats.priceUsd).format("0,0.00 $") }}
+              {{ numeral(props.row.stats.priceUsd).format("0,0[.]00[0000] $") }}
             </q-td>
           </q-tr>
         </template>

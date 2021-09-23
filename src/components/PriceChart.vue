@@ -29,14 +29,17 @@ export default defineComponent({
     },
     options() {
       const common = commonChartOptions();
-      const { symbol } = this.market.pc;
+      const { symbol, decimals } = this.market.pc;
+      const format = `0,0[.]00[${Array(decimals - 2)
+        .fill(0)
+        .join("")}]`;
 
       return {
         ...common,
         yaxis: {
           labels: {
             formatter(val) {
-              return `${numeral(val).format("0,0")} ${symbol}`;
+              return `${numeral(val).format(format)} ${symbol}`;
             },
           },
         },
