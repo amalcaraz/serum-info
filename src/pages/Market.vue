@@ -31,7 +31,7 @@
           color="primary"
           label="Trade"
           type="a"
-          :href="`https://dex.projectserum.com/#/market/${market.address}`"
+          :href="`${marketUrl}${market.address}`"
           target="_blank"
           rel="noopener"
         />
@@ -181,6 +181,10 @@ export default defineComponent({
     };
   },
   async setup(props) {
+    // @note: Deprecated
+    // const marketUrl = "https://dex.projectserum.com/#/market/";
+    const marketUrl = "https://dex.raydium.io/#/market/";
+
     // const now = DateTime.now();
     const intervalUnit = "hour";
     const numCandles = 24;
@@ -202,6 +206,7 @@ export default defineComponent({
       numeral,
       intervalUnit,
       numCandles,
+      marketUrl,
       ...result,
     };
   },
