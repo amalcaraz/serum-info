@@ -5,6 +5,10 @@ html { font-family: 'Inter', sans-serif; }
   html { font-family: 'Inter var', sans-serif; }
 }
 
+.bg-dark-2 {
+  background: #0d101780;
+}
+
 body.body--dark {
   background: #0d1017;
 }
@@ -111,7 +115,7 @@ background: #FAFAFA;
 margin-bottom: 1em;
 }
 
-.bg-dark-opacity, 
+.bg-dark-opacity,
 .body--dark,
 .bg-card {
   background: #1a2029;

@@ -41,7 +41,7 @@
       <q-card class="bg-card col-auto" style="min-width: 300px">
         <q-card-section>
           <div class="q-pa-one">
-            <q-card class="shadow-0 bg-dark-opacity">
+            <q-card class="shadow-0 bg-dark-2">
               <q-card-section>
                 <h6 class="q-ma-none q-pb-sm">Total tokens locked</h6>
                 <div
