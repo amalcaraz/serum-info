@@ -4,6 +4,7 @@
 
 <script>
 import { defineComponent } from "vue";
+import numeral from "numeral";
 import { commonChartOptions, commonChartSeries } from "../services/charts";
 
 export default defineComponent({
@@ -39,7 +40,11 @@ export default defineComponent({
       ];
     },
     options() {
-      const common = commonChartOptions();
+      const { yaxis, ...common } = commonChartOptions();
+      const { symbol, decimals } = this.market.pc;
+      const format = `0,0[.]00[${Array(decimals - 2)
+        .fill(0)
+        .join("")}]`;
 
       return {
         ...common,
@@ -48,6 +53,22 @@ export default defineComponent({
           type: "candlestick",
           stacked: false,
           height: 350,
+        },
+        yaxis: {
+          labels: {
+            formatter(val) {
+              return `${numeral(val).format(format)} ${symbol}`;
+            },
+          },
+        },
+        plotOptions: {
+          candlestick: {
+            colors: {
+              upward: "#00b3c8",
+              downward: "#DF7D46",
+            },
+            wick: { useFillColor: true },
+          },
         },
         dataLabels: {
           enabled: false,

@@ -185,9 +185,13 @@ export default defineComponent({
 
 <style lang="css">
 .buy {
-  color: #55dd55;
+  /* color: #55dd55; */
+  /* color: #00b746; */
+  color: #00b3c8;
 }
 .sell {
-  color: #dd5555;
+  /* color: #dd5555; */
+  /* color: #ef403c; */
+  color: #df7d46;
 }
 </style>

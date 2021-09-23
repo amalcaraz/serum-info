@@ -103,6 +103,11 @@
             indicator-color="serum-purple"
           >
             <q-tab v-if="hourlyStats.ohlcv" name="price" label="Price" />
+            <q-tab
+              v-if="hourlyStats.ohlcv"
+              name="priceCandle"
+              label="Price (candles)"
+            />
             <q-tab v-if="hourlyStats.tvl" name="tvl" label="TVL" />
             <q-tab v-if="hourlyStats.ohlcv" name="volume" label="Volume" />
           </q-tabs>
@@ -114,6 +119,18 @@
               class="bg-dark-60"
             >
               <price-chart
+                :market="market"
+                :ohlcv="hourlyStats.ohlcv"
+                :intervalUnit="intervalUnit"
+                :numCandles="numCandles"
+              />
+            </q-tab-panel>
+            <q-tab-panel
+              v-if="hourlyStats.ohlcv"
+              name="priceCandle"
+              class="bg-dark-60"
+            >
+              <price-candle-chart
                 :market="market"
                 :ohlcv="hourlyStats.ohlcv"
                 :intervalUnit="intervalUnit"
@@ -166,11 +183,18 @@ import { client } from "../services/graphql";
 import { get_token } from "../services/tokens";
 import TradesHistory from "src/components/TradesHistory.vue";
 import PriceChart from "src/components/PriceChart.vue";
+import PriceCandleChart from "src/components/PriceCandleChart.vue";
 import VolumeChart from "src/components/VolumeChart.vue";
 import TvlChart from "src/components/TvlChart.vue";
 
 export default defineComponent({
-  components: { TradesHistory, PriceChart, VolumeChart, TvlChart },
+  components: {
+    TradesHistory,
+    PriceChart,
+    PriceCandleChart,
+    VolumeChart,
+    TvlChart,
+  },
   name: "MarketPage",
   props: {
     address: String,
