@@ -211,7 +211,7 @@ export default defineComponent({
 
     // const now = DateTime.now();
     const intervalUnit = "hour";
-    const numCandles = 24;
+    const numCandles = 24 * 7;
 
     let result = await client.request(marketDetailsQuery, {
       address: props.address,
